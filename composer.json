@@ -1,0 +1,22 @@
+{
+    "name": "libertyware/omnipay-gateway-core",
+    "description": "omnipay core payment gateway for WP Travel",
+    "type": "library",
+    "require": {
+        "league/omnipay": "^3.1@dev",
+        "omnipay/sagepay": "^3.0@dev"
+    },
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Jordan",
+            "email": "jordan@libertyware.co.uk"
+        }
+    ],
+    "minimum-stability": "dev",
+    "autoload": {
+        "psr-4": {
+            "libertyware\\omnipay-gateway-core\\": "./src"
+        }
+    }
+}
