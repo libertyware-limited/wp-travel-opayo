@@ -8,24 +8,24 @@ namespace Libertyware\TravelSystem\Payments;
 final class Init {
 
 	/**
-	 * @var \Libertyware\TravelSystem\Payments\Core\Interfaces\IActivate
+	 * @varCore\Interfaces\IActivate
 	 */
 	public $activate;
 
 	/**
-	 * @var \Libertyware\TravelSystem\Payments\Core\Interfaces\IDeactivate
+	 * @var Core\Interfaces\IDeactivate
 	 */
 	public $deactivate;
 
 	/**
 	 * Construct.
 	 *
-	 * @param \Libertyware\TravelSystem\Payments\Core\Interfaces\IActivate $activate
-	 * @param \Libertyware\TravelSystem\Payments\Core\Interfaces\IDeactivate $deactivate
+	 * @param Core\Interfaces\IActivate $activate
+	 * @param Core\Interfaces\IDeactivate $deactivate
 	 */
 	public function __construct(
-		\Libertyware\TravelSystem\Payments\Core\Interfaces\IActivate $activate,
-		\Libertyware\TravelSystem\Payments\Core\Interfaces\IDeactivate $deactivate
+		Core\Interfaces\IActivate $activate,
+		Core\Interfaces\IDeactivate $deactivate
 	) {
 		$this->activate   = $activate;
 		$this->deactivate = $deactivate;
