@@ -33,8 +33,8 @@ $container = new League\Container\Container();
 $container->delegate( ( new League\Container\ReflectionContainer() )->cacheResolutions() );
 $container->inflector( ContainerAwareInterface::class )->invokeMethod( 'setContainer', [ $container ] );
 
-$container->addServiceProvider(new PaymentsProvider());
-$container->addServiceProvider(new WordpressApiProvider());
+$container->addServiceProvider( new PaymentsProvider() );
+$container->addServiceProvider( new WordpressApiProvider() );
 
 /** @var Libertyware\TravelSystem\Payments\Init::class $init */
 $init = $container->get( \Libertyware\TravelSystem\Payments\Init::class );
