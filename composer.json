@@ -4,7 +4,9 @@
     "type": "library",
     "require": {
         "league/omnipay": "^3.1@dev",
-        "omnipay/sagepay": "^3.0@dev"
+        "omnipay/sagepay": "^3.0@dev",
+        "squizlabs/php_codesniffer": "*",
+        "league/container": "3.x"
     },
     "license": "MIT",
     "authors": [
@@ -16,7 +18,13 @@
     "minimum-stability": "dev",
     "autoload": {
         "psr-4": {
-            "libertyware\\omnipay-gateway-core\\": "./src"
+            "Libertyware\\TravelSystem\\Payments\\": "/payments"
         }
+    },
+    "require-dev": {
+        "dealerdirect/phpcodesniffer-composer-installer": "dev-master",
+        "wp-coding-standards/wpcs": "dev-master",
+        "phpcompatibility/phpcompatibility-wp": "*",
+        "giacocorsiglia/wordpress-stubs": "dev-master"
     }
 }

@@ -1,0 +1,17 @@
+{
+  "cSpell.words": [
+    "Libertyware"
+  ],
+  "prettier.useTabs": true,
+  "peacock.affectTabActiveBorder": true,
+  "editor.tabCompletion": "on",
+  "editor.insertSpaces": false,
+  "editor.useTabStops": true,
+  "prettier.tabWidth": 2,
+  "editor.tabSize": 2,
+  "editor.autoIndent": "advanced",
+  "launch": {
+    "configurations": [],
+    "compounds": []
+  }
+}
