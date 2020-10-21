@@ -31,13 +31,15 @@ use \Libertyware\TravelSystem\Payments\PaymentsProvider;
 $container = new League\Container\Container();
 
 $container->delegate( ( new League\Container\ReflectionContainer() )->cacheResolutions() );
-$container->inflector( ContainerAwareInterface::class )->invokeMethod( 'setContainer', [ $container ] );
+$container->inflector( ContainerAwareInterface::class )->invokeMethod( 'setContainer', array( $container ) );
 
 $container->addServiceProvider( new PaymentsProvider() );
 $container->addServiceProvider( new WordpressApiProvider() );
 
 /** @var Libertyware\TravelSystem\Payments\Init::class $init */
 $init = $container->get( \Libertyware\TravelSystem\Payments\Init::class );
+
+
 
 if ( isset( $init ) ) {
 	register_activation_hook( __FILE__, $init->activate );

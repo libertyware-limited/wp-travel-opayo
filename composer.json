@@ -6,7 +6,8 @@
         "league/omnipay": "^3.1@dev",
         "omnipay/sagepay": "^3.0@dev",
         "squizlabs/php_codesniffer": "*",
-        "league/container": "3.x"
+        "league/container": "3.x",
+        "cocur/slugify": "dev-master"
     },
     "license": "MIT",
     "authors": [
@@ -19,7 +20,8 @@
     "autoload": {
         "psr-4": {
             "Libertyware\\TravelSystem\\Payments\\": "./payments",
-            "Libertyware\\TravelSystem\\Wordpress\\": "./wordpress"
+            "Libertyware\\TravelSystem\\Wordpress\\": "./wordpress",
+            "Libertyware\\TravelSystem\\WPTravel\\": "./WPTravel"
         },
         "classmap": ["./payments", "./wordpress"]
     },

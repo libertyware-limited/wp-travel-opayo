@@ -9,6 +9,8 @@ declare(strict_types=1);
 namespace Libertyware\TravelSystem\Payments;
 
 use League\Container\ServiceProvider\AbstractServiceProvider;
+use Libertyware\TravelSystem\Wordpress\API\SettingsAPI;
+
 class PaymentsProvider extends AbstractServiceProvider {
 
 	/**
@@ -23,6 +25,9 @@ class PaymentsProvider extends AbstractServiceProvider {
 	protected $provides = array(
 		Core\Interfaces\IDeactivate::class,
 		Core\Interfaces\IActivate::class,
+		Core\SettingsLinks::class,
+		Core\Enqueue::class,
+		Pages\Admin::class,
 		Init::class,
 		'plugin_path',
 		'plugin_url',
@@ -37,6 +42,11 @@ class PaymentsProvider extends AbstractServiceProvider {
 	public function register() {
 
 		$container = $this->getLeagueContainer();
+
+		$container->add(
+			\Cocur\Slugify\SlugifyInterface::class,
+			\Cocur\Slugify\Slugify::class
+		);
 
 		$container->add(
 			Core\Interfaces\IDeactivate::class,
@@ -55,9 +65,9 @@ class PaymentsProvider extends AbstractServiceProvider {
 				)
 			);
 
-		$container->add( 'plugin_path', plugin_dir_path( __FILE__ ) );
-		$container->add( 'plugin_url', plugin_dir_url( __FILE__ ) );
-		$container->add( 'plugin', plugin_basename( __FILE__ ) );
+		$container->add( 'plugin_path', plugin_dir_path( dirname( __FILE__, 1 ) ) );
+		$container->add( 'plugin_url', plugin_dir_url( dirname( __FILE__, 1 ) ) );
+		$container->add( 'plugin', plugin_basename( dirname( __FILE__, 2 ) ) );
 
 		$container->add( ConfigService::class )
 			->addArguments(
@@ -67,5 +77,37 @@ class PaymentsProvider extends AbstractServiceProvider {
 					$container->get( 'plugin' ),
 				)
 			);
+
+		$container->add( Pages\Admin::class )
+			->addArguments(
+				array(
+					ConfigService::class,
+					SettingsAPI::class,
+					\Cocur\Slugify\SlugifyInterface::class,
+				)
+			);
+
+		$container->add( Core\SettingsLinks::class )
+		->addArguments(
+			array(
+				ConfigService::class,
+				SettingsAPI::class,
+			)
+		);
+
+		$container->add( Core\Enqueue::class )
+		->addArguments(
+			array(
+				ConfigService::class,
+				SettingsAPI::class,
+			)
+		);
+
+		foreach ( $this->provides as $provide ) {
+			$services = $container->get( $provide );
+			if ( method_exists( $services, 'register' ) ) {
+				$services->register();
+			}
+		}
 	}
 }
