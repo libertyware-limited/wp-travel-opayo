@@ -5,7 +5,6 @@
     "require": {
         "league/omnipay": "^3.1@dev",
         "omnipay/sagepay": "^3.0@dev",
-        "squizlabs/php_codesniffer": "*",
         "league/container": "3.x",
         "cocur/slugify": "dev-master"
     },
@@ -23,6 +22,7 @@
         }
     },
     "require-dev": {
+        "squizlabs/php_codesniffer": "*",
         "dealerdirect/phpcodesniffer-composer-installer": "dev-master",
         "wp-coding-standards/wpcs": "dev-master",
         "phpcompatibility/phpcompatibility-wp": "*",
