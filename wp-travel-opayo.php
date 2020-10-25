@@ -10,6 +10,7 @@ Author URI: https://libertyware.io
 License: MIT
 */
 
+
 // Exit if accessed directly.
 if (!defined('ABSPATH')) {
 	exit;
@@ -18,6 +19,7 @@ if (!defined('ABSPATH')) {
 require_once plugin_dir_path(__FILE__) . 'vendor/autoload.php';
 
 use Omnipay\Omnipay;
+
 
 // WP Travel OPayO Checkout core.
 if (!class_exists('WP_Travel_OPayO_Checkout_Core')) :
@@ -200,6 +202,11 @@ if (!class_exists('WP_Travel_OPayO_Checkout_Core')) :
 			}
 		}
 
+
+
+
+
+
 		/**
 		 * Include required core files used in admin and on the frontend.
 		 *
@@ -251,14 +258,6 @@ if (!class_exists('WP_Travel_OPayO_Checkout_Core')) :
 				)
 			);
 
-			if ($is_test_mod) {
-				if (method_exists($gateway, 'setDeveloperMode')) {
-					$gateway->setDeveloperMode(TRUE);
-				} else {
-					$gateway->setTestMode(TRUE);
-				}
-			}
-
 			$response = $gateway->authorize(
 				array(
 						'returnUrl' => 'https://example.com/success',
@@ -266,22 +265,20 @@ if (!class_exists('WP_Travel_OPayO_Checkout_Core')) :
 				)
 			);
 
-			$url = $response->isSuccessful();
+			// global $wt_cart;
+			// $items       = $wt_cart->getItems();
+			// $cart_amounts = $wt_cart->get_total();
 
-			global $wt_cart;
-			$items       = $wt_cart->getItems();
-			$cart_amounts = $wt_cart->get_total();
+			// if ($amount) {
+			// 	$amount = number_format($amount / 100, 2, '.', '');
+			// }
+			// $payment_id     = get_post_meta($booking_id, 'wp_travel_payment_id', true);
+			// $payment_method = 'opayo';
+			// update_post_meta($payment_id, 'wp_travel_payment_gateway', $payment_method);
 
-			if ($amount) {
-				$amount = number_format($amount / 100, 2, '.', '');
-			}
-			$payment_id     = get_post_meta($booking_id, 'wp_travel_payment_id', true);
-			$payment_method = 'opayo';
-			update_post_meta($payment_id, 'wp_travel_payment_gateway', $payment_method);
-
-			wp_travel_update_payment_status($booking_id, $amount, 'paid', $detail, sprintf('_%s_args', $payment_method), $payment_id);
-			$_SESSION['used-opayo'] = true;
-			do_action('wp_travel_after_successful_payment', $booking_id);
+			// wp_travel_update_payment_status($booking_id, $amount, 'paid', $detail, sprintf('_%s_args', $payment_method), $payment_id);
+			// $_SESSION['used-opayo'] = true;
+			// do_action('wp_travel_after_successful_payment', $booking_id);
 		}
 
 
