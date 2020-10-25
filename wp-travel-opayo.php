@@ -1,12 +1,14 @@
 <?php
 
-/**
- * WP Travel OPayO Checkout Core Class.
- *
- * @package wp-travel-opayo
- * @category Core
- * @author WEN Solutions
- */
+/*
+Plugin Name: Wp Travel OPayO
+Plugin URI: https://libertyware.io
+Description: SagePay for WP Travel.
+Version: 0.1.0
+Author: Libertyware Limited
+Author URI: https://libertyware.io
+License: MIT
+*/
 
 // Exit if accessed directly.
 if (!defined('ABSPATH')) {

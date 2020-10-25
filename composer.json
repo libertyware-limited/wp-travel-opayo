@@ -19,11 +19,8 @@
     "minimum-stability": "dev",
     "autoload": {
         "psr-4": {
-            "Libertyware\\TravelSystem\\Payments\\": "./payments",
-            "Libertyware\\TravelSystem\\Wordpress\\": "./wordpress",
-            "Libertyware\\TravelSystem\\WPTravel\\": "./WPTravel"
-        },
-        "classmap": ["./payments", "./wordpress"]
+
+        }
     },
     "require-dev": {
         "dealerdirect/phpcodesniffer-composer-installer": "dev-master",
