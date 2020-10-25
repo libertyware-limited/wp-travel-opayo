@@ -130,13 +130,6 @@ if (!class_exists('WP_Travel_OPayO_Checkout_Core')) :
 			return $message;
 		}
 
-		public static function add_extra_fields($booking_id = null, $details = null)
-		{
-?>
-			<div id="card-errors"> FAILED</div>
-<?php
-		}
-
 		/**
 		 * Determine if booking used express checkout.
 		 */
