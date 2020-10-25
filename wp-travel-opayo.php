@@ -19,6 +19,9 @@ if (!defined('ABSPATH')) {
 require_once plugin_dir_path(__FILE__) . 'vendor/autoload.php';
 
 use Omnipay\Omnipay;
+use Omnipay\Common\CreditCard;
+use Omnipay\Common\ItemBag;
+use Omnipay\SagePay\Extend\Item;
 
 
 // WP Travel OPayO Checkout core.
@@ -108,8 +111,8 @@ if (!class_exists('WP_Travel_OPayO_Checkout_Core')) :
 				add_filter('wp_travel_frontend_data', 'wp_travel_opayo_add_vars', 10, 2);
 			}
 
-			add_action('wp_travel_action_after_payment_info_field', array(__CLASS__, 'add_extra_fields'));
-			add_action('wp_travel_dashboard_booking_after_detail', array(__CLASS__, 'add_extra_fields'), 15, 2);
+			add_action('wp_travel_action_after_payment_info_field', array( 'WP_Travel_OPayO_Checkout_Core', 'add_extra_fields'));
+			add_action('wp_travel_dashboard_booking_after_detail', array( 'WP_Travel_OPayO_Checkout_Core', 'add_extra_fields'), 15, 2);
 
 
 			if (self::uses_opayo_checkout()) {
@@ -119,10 +122,18 @@ if (!class_exists('WP_Travel_OPayO_Checkout_Core')) :
 			isset($_SESSION['used-opayo']) && $_SESSION['used-opayo'] && add_filter('wp_travel_booked_message', 'wp_travel_opayo_booking_message', 20);
 		}
 
+
+		public static function wp_travel_opayo_booking_message( $message ) {
+			unset( $_SESSION['used-opayo'] );
+			var_dump( $message );
+			$message = esc_html__( "We've received your booking and payment details. We'll contact you soon.", 'wp-travel-pro' );
+			return $message;
+		}
+
 		public static function add_extra_fields($booking_id = null, $details = null)
 		{
 ?>
-			<div id="card-errors"></div>
+			<div id="card-errors"> FAILED</div>
 <?php
 		}
 
@@ -250,35 +261,108 @@ if (!class_exists('WP_Travel_OPayO_Checkout_Core')) :
 
 			$is_test_mode = $settings['wt_test_mode'] === 'yes';
 
+			global $wt_cart;
+			$items          = $wt_cart->getItems();
+			$cart_amounts   = $wt_cart->get_total();
+			$cart_total     = $cart_amounts['cart_total'];
+
+			$card = new CreditCard( self::get_buyer_details( $booking_id ) );
+
+
 			$gateway = OmniPay::create( 'SagePay\Form' )->initialize(
 				array(
 					'vendor'        => $settings['opayo_vendor'],
 					'testMode'      => $is_test_mode,
 					'encryptionKey' => $settings['opayo_encryption_key'],
+					'disableUtf8Decode' => true,
 				)
 			);
+			$return_url = self::get_return_url( $booking_id );
 
-			$response = $gateway->authorize(
+			$request  = $gateway->purchase(
 				array(
-						'returnUrl' => 'https://example.com/success',
-						'failureUrl' => 'https://example.com/failure',
+					'currency'      => $settings['currency'] ? $settings['currency'] : 'GBP',
+					'card'          => $card,
+					'amount'        => $cart_total,
+					'transactionId' => $booking_id,
+					'clientIp'      => $_SERVER['HTTP_CLIENT_IP'] || $_SERVER['HTTP_X_FORWARDED_FOR'] || $_SERVER['REMOTE_ADDR'],
+					'description'   => self::get_trip_title( $booking_id ),
+					'returnUrl'     => add_query_arg(
+						array(
+							'booking_id' => $booking_id,
+							'booked'     => true,
+							'status'     => 'success',
+							'order_id'   => $booking_id,
+						),
+						$return_url
+					),
+					'failureUrl'    => add_query_arg(
+						array(
+							'booking_id' => $booking_id,
+							'booked'     => true,
+							'status'     => 'cancel',
+						),
+						$return_url
+					),
 				)
 			);
+			$_SESSION['used-opayo'] = true;
+			$response = $request->send();
+			$response->redirect();
 
-			// global $wt_cart;
-			// $items       = $wt_cart->getItems();
-			// $cart_amounts = $wt_cart->get_total();
 
-			// if ($amount) {
-			// 	$amount = number_format($amount / 100, 2, '.', '');
-			// }
-			// $payment_id     = get_post_meta($booking_id, 'wp_travel_payment_id', true);
-			// $payment_method = 'opayo';
 			// update_post_meta($payment_id, 'wp_travel_payment_gateway', $payment_method);
 
 			// wp_travel_update_payment_status($booking_id, $amount, 'paid', $detail, sprintf('_%s_args', $payment_method), $payment_id);
 			// $_SESSION['used-opayo'] = true;
 			// do_action('wp_travel_after_successful_payment', $booking_id);
+		}
+
+		private static function get_trip_title( $booking_id ) {
+			$trip_id = get_post_meta( (int) $booking_id, 'wp_travel_post_id', true );
+			$post = get_post( $trip_id );
+			return $post->post_title;
+
+		}
+
+		private static function get_return_url( $booking_id ) {
+			$trip_id = get_post_meta( (int) $booking_id, 'wp_travel_post_id', true );
+			$url     = '';
+			if ( function_exists( 'wp_travel_thankyou_page_url' ) ) {
+				$url = wp_travel_thankyou_page_url( (int) $trip_id );
+			}
+			return $url;
+		}
+
+		private static function get_buyer_details( $booking_id ) {
+			$booking_data = get_post_meta( (int) $booking_id, 'order_data', true );
+
+			$args = array();
+			$key  = self::get_form_index_key( $booking_id );
+			if ( $key ) :
+
+				// Buyer Details.
+				$args['firstName'] = isset( $booking_data['wp_travel_fname_traveller'][ $key ][0] ) ? $booking_data['wp_travel_fname_traveller'][ $key ][0] : '';
+				$args['lastName']  = isset( $booking_data['wp_travel_lname_traveller'][ $key ][0] ) ? $booking_data['wp_travel_lname_traveller'][ $key ][0] : '';
+				$args['email']      = isset( $booking_data['wp_travel_email_traveller'][ $key ][0] ) ? $booking_data['wp_travel_email_traveller'][ $key ][0] : '';
+				$args['billingAddress1']    = isset( $booking_data['wp_travel_address'] ) ? $booking_data['wp_travel_address'] : '';
+				$args['billingCity']       = isset( $booking_data['billing_city'] ) ? $booking_data['billing_city'] : '';
+				$args['billingPostcode']       = isset( $booking_data['billing_postal'] ) ? $booking_data['billing_postal'] : '';
+				$args['billingCountry']    = isset( $booking_data['wp_travel_country'] ) ? $booking_data['wp_travel_country'] : '';
+				$args['shippingAddress1']    = isset( $booking_data['wp_travel_address'] ) ? $booking_data['wp_travel_address'] : '';
+				$args['shippingCity']       = isset( $booking_data['billing_city'] ) ? $booking_data['billing_city'] : '';
+				$args['shippingPostcode']       = isset( $booking_data['billing_postal'] ) ? $booking_data['billing_postal'] : '';
+				$args['shippingCountry']    = isset( $booking_data['wp_travel_country'] ) ? $booking_data['wp_travel_country'] : '';
+			endif;
+			return $args;
+		}
+
+
+		private static function get_form_index_key( $booking_id ) {
+			$order_details = get_post_meta( (int) $booking_id, 'order_items_data', true ); // Multiple Trips.
+
+			$index = is_array( $order_details ) && count( $order_details ) > 0 ? array_keys( $order_details )[0] : null;
+			return $index;
 		}
 
 

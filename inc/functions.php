@@ -15,13 +15,13 @@ function wp_travel_gateway_opayo($gateways)
 	if (!$gateways) {
 		return;
 	}
-	$gateways['opayo'] = __('OPayO Checkout', 'wp-travel-pro');
+	$gateways['opayo'] = __('OPayO Checkout', 'wp-travel');
 	return $gateways;
 }
 
 function wp_travel_opayo_addons($addons)
 {
-	$addons['opayo'] = __('OPayO Checkout', 'wp-travel-pro');
+	$addons['opayo'] = __('OPayO Checkout', 'wp-travel');
 	return $addons;
 }
 
